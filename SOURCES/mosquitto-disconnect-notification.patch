@@ -1,0 +1,54 @@
+diff -uNr mosquitto-1.4.10/config.mk mosquitto/config.mk
+--- mosquitto-1.4.10/config.mk	2016-08-16 21:56:28.000000000 +0000
++++ mosquitto/config.mk	2016-09-06 22:39:41.318139802 +0000
+@@ -71,7 +71,7 @@
+ WITH_EC:=yes
+ 
+ # Build man page documentation by default.
+-WITH_DOCS:=yes
++WITH_DOCS:=no
+ 
+ # Build with client support for SOCK5 proxy.
+ WITH_SOCKS:=yes
+diff -uNr mosquitto-1.4.10/src/loop.c mosquitto/src/loop.c
+--- mosquitto-1.4.10/src/loop.c	2016-08-16 21:56:28.000000000 +0000
++++ mosquitto/src/loop.c	2016-09-06 22:39:41.326139800 +0000
+@@ -420,6 +420,19 @@
+ 			}
+ 		}
+ 		mqtt3_context_disconnect(db, context);
++
++		if(context->id) {
++			int notification_topic_len = strlen(context->id)+strlen("$SYS/broker/clients/connection//state");
++			char* notification_topic = _mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
++			if(notification_topic) {
++				_mosquitto_log_printf(NULL, MOSQ_LOG_DEBUG, "Publish %s disconnection.", context->id);
++				snprintf(notification_topic, notification_topic_len+1, "$SYS/broker/clients/connection/%s/state", context->id);
++				uint8_t notification_payload = '0';
++				mqtt3_db_messages_easy_queue(db, context, notification_topic, 1, 1, &notification_payload, 1);
++				_mosquitto_free(notification_topic);
++			}
++		}
++
+ #ifdef WITH_BRIDGE
+ 		if(context->clean_session && !context->bridge){
+ #else
+diff -uNr mosquitto-1.4.10/src/read_handle_server.c mosquitto/src/read_handle_server.c
+--- mosquitto-1.4.10/src/read_handle_server.c	2016-08-16 21:56:28.000000000 +0000
++++ mosquitto/src/read_handle_server.c	2016-09-06 22:39:41.326139800 +0000
+@@ -524,6 +524,15 @@
+ 			}else{
+ 				_mosquitto_log_printf(NULL, MOSQ_LOG_NOTICE, "New client connected from %s as %s (c%d, k%d).", context->address, client_id, clean_session, context->keepalive);
+ 			}
++			int notification_topic_len = strlen(client_id)+strlen("$SYS/broker/clients/connection//state");
++			char* notification_topic = _mosquitto_malloc(sizeof(char)*(notification_topic_len+1));
++			if(notification_topic) {
++				_mosquitto_log_printf(NULL, MOSQ_LOG_DEBUG, "Publish %s connection.", client_id);
++				snprintf(notification_topic, notification_topic_len+1, "$SYS/broker/clients/connection/%s/state", client_id);
++				uint8_t notification_payload = '1';
++				mqtt3_db_messages_easy_queue(db, context, notification_topic, 1, 1, &notification_payload, 1);
++				_mosquitto_free(notification_topic);
++			}
+ 		}
+ 	}
+ 
