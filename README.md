@@ -18,6 +18,8 @@ sudo tar xvzf SOURCES/v1.4.10.tar.gz
 rm -rf mosquitto\*/.git\*
 diff -uNr mosquitto-1.4.10 mosquitto > $SOURCES/$NEW_PATC_NAME.patch
 rm -rf mosquitto\*
+# ADD NEW PATCH FILE(S) and COMMENTS, ETC.
+vim SPECS/mosquitto-1.4.10-1.spec
 rpmbuild -ba SPECS/mosquitto-1.4.10-1.spec
 ```
 
