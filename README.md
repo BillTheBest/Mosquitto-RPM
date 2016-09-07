@@ -7,7 +7,7 @@ This repo contains the files used to build am RPM of the Mosquitto MQTT broker.
 ```
 ssh $BUILD_SERVER`
 cd /usr/src/rpm`
-\# MAKE SURE THERE IS NOTHING TO SAVE HERE FIRST`
+# MAKE SURE THERE IS NOTHING TO SAVE HERE FIRST`
 rm -rf \*
 git clone git@github.com:myDevicesIoT/Mosquitto-RPM.git
 cd /usr/src/rpm/SOURCES
