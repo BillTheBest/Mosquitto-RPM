@@ -21,7 +21,7 @@ make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 %makeinstall
 
 %clean
-[ $RPM_BUILD_ROOT -ne "/" ] && rm -rf $RPM_BUILD_ROOT
+[ $RPM_BUILD_ROOT != "/" ] && rm -rf $RPM_BUILD_ROOT
 
 %files
 /usr/lib/libmosquitto.so.1
@@ -35,6 +35,9 @@ make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 /usr/sbin/mosquitto
 /usr/include/mosquitto_plugin.h
 /usr/bin/mosquitto_passwd
+
+%post -p /sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 %changelog
 * Tue Sep 6 2016 David Achenbach <dachenbach@mydevices.com>
