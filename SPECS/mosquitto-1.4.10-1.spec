@@ -6,6 +6,7 @@ License: GPL
 Group: System Environment/Base
 Source: https://github.com/myDevicesIoT/mosquitto/archive/v1.4.10.tar.gz
 Patch0: mosquitto-disconnect-notification.patch
+Source1: init.tar.gz
 
 %description
 Mosquitto MQTT Broker
@@ -13,12 +14,15 @@ Mosquitto MQTT Broker
 %prep
 %setup -q
 %patch0 -p1 -b .buildroot
+%setup -T -D -a 1
 
 %build
 make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 
 %install
 %makeinstall
+mkdir -p "$RPM_BUILD_ROOT/etc/init.d"
+cp init/mosquitto "$RPM_BUILD_ROOT/etc/init.d/"
 
 %clean
 [ $RPM_BUILD_ROOT != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -35,6 +39,7 @@ make RPM_OPT_FLAGS="$RPM_OPT_FLAGS"
 /usr/sbin/mosquitto
 /usr/include/mosquitto_plugin.h
 /usr/bin/mosquitto_passwd
+/etc/init.d/mosquitto
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
